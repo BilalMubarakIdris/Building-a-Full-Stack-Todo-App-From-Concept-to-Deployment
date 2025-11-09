@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Tasks - Todo App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      .tasks-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+      .tasks-filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .tasks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+      .task-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #ddd;
+      }
+      .task-card.completed {
+        opacity: 0.7;
+        border-left-color: #4cc9f0;
+      }
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+      .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .priority-badge.high {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .priority-badge.medium {
+        background: #fef3c7;
+        color: #d97706;
+      }
+      .priority-badge.low {
+        background: #d1fae5;
+        color: #059669;
+      }
+      .task-description {
+        color: #666;
+        margin-bottom: 1rem;
+      }
+      .due-date {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        font-style: italic;
+      }
+      .task-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.9rem;
+      }
+      .btn-primary {
+        background: #4361ee;
+        color: white;
+      }
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+      .btn-success {
+        background: #4cc9f0;
+        color: white;
+      }
+      .btn-warning {
+        background: #f8961e;
+        color: white;
+      }
+      .btn-danger {
+        background: #f72585;
+        color: white;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+        grid-column: 1 / -1;
+      }
+      .inline-form {
+        display: inline;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('../layouts/main.ejs', { title: 'My Tasks' }) %>
+
+    <div class="tasks-header">
+      <h1>My Tasks</h1>
+      <a href="/tasks/new" class="btn btn-primary">+ Add Task</a>
+    </div>
+
+    <div class="tasks-filters">
+      <select id="filter-priority">
+        <option value="">All Priorities</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <select id="filter-status">
+        <option value="">All Status</option>
+        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
+      </select>
+    </div>
+
+    <div class="tasks-grid">
+      <% if (tasks.length === 0) { %>
+      <div class="empty-state">
+        <h3>No tasks yet</h3>
+        <p>Create your first task to get started!</p>
+        <a href="/new" class="btn btn-primary">Create Task</a>
+      </div>
+      <% } else { %> <% tasks.forEach(task => { %>
+      <div class="task-card <%= task.completed ? 'completed' : '' %>">
+        <div class="task-header">
+          <h3><%= task.title %></h3>
+          <span class="priority-badge <%= task.priority %>">
+            <%= task.priority %>
+          </span>
+        </div>
+
+        <% if (task.description) { %>
+        <p class="task-description"><%= task.description %></p>
+        <% } %> <% if (task.dueDate) { %>
+        <p class="due-date">
+          Due: <%= new Date(task.dueDate).toLocaleDateString() %>
+        </p>
+        <% } %>
+
+        <div class="task-actions">
+          <!-- COMPLETE/UNDO FORM - FIXED -->
+          <form
+            action="/tasks/<%= task._id %>?_method=PUT"
+            method="POST"
+            class="inline-form"
+          >
+            <input type="checkbox" name="completed" <%= task.completed ?
+            'checked' : '' %> style="display: none;"
+            onchange="this.form.submit()" />
+            <button
+              type="button"
+              class="btn <%= task.completed ? 'btn-warning' : 'btn-success' %>"
+              onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked; this.form.submit()"
+            >
+              <%= task.completed ? 'Undo' : 'Complete' %>
+            </button>
+          </form>
+
+          <a href="/tasks/<%= task._id %>/edit" class="btn btn-secondary">
+            Edit
+          </a>
+
+          <!-- DELETE FORM - FIXED -->
+          <form
+            action="/tasks/<%= task._id %>?_method=DELETE"
+            method="POST"
+            class="inline-form"
+          >
+            <button
+              type="submit"
+              class="btn btn-danger"
+              onclick="return confirm('Delete this task?')"
+            >
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+      <% }); %> <% } %>
+    </div>
+  </body>
+</html>

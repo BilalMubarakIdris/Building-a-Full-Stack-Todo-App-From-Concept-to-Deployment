@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %> - Todo App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-brand">✅ TodoApp</div>
+      <div class="nav-links">
+        <% if (typeof user !== 'undefined' && user) { %>
+        <span>Welcome, <%= user.username %></span>
+        <form action="/logout" method="POST" style="display: inline">
+          <button type="submit">Logout</button>
+        </form>
+        <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+        <% } %>
+      </div>
+    </nav>
+
+    <main class="container">
+      <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert error"><%= error %></div>
+      <% } %> <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert success"><%= success %></div>
+      <% } %>
+    </main>
+  </body>
+</html>
